@@ -1,5 +1,9 @@
-from flask import Flask, render_template, url_for, flash, redirect, request
+from flask import Flask, render_template, url_for, flash, redirect, request, session
 from wtforms import Form, BooleanField, TextField, PasswordField, validators
+from passlib.hash import sha256_crypt
+from pymysql import escape_string as thwart
+import gc
+
 from .db_connect import connection
 from .app_content import content
 app = Flask(__name__)
@@ -44,10 +48,47 @@ def login():
     except Exception as e:
         return render_template("login.html", error = error)
 
+class RegistrationForm(Form):
+    username = TextField("Username", [validators.Length(min=4, max=20)])
+    email = TextField("Email Address", [validators.Length(min=6, max=50)])
+    password = PasswordField("New Password", [validators.Required(),
+                                             validators.EqualTo("confirm", message="Password must match")])
+    confirm = PasswordField("Repeat Password")
+    accept_tos = BooleanField("I accept the Terms of Service and Privacy Notice", [validators.Required()])
+
 @app.route('/register/', methods=["GET","POST"])
 def register_page():
-    c, conn = connection()
-    return("Connected!")
+    try:
+        form = RegistrationForm(request.form)
+        if request.method == "POST" and form.validate():
+            username = form.username.data
+            email = form.email.data
+            password = sha256_crypt.encrypt((str(form.password.data)))
+
+            c, conn = connection()
+
+            x = c.execute("SELECT * FROM users WHERE username= ('{0}')".format((thwart(username))))
+
+            if int(x) > 0:
+                flash("That username is already taken, please choose another")
+                return render_template("register.html", form = form)
+            else:
+                c.execute("INSERT INTO users(username, password, email, tracking) VALUES ('{0}','{1}','{2}','{3}')".format(thwart(username),thwart(password),thwart(email),thwart("/dashboard/")))
+
+            conn.commit()
+            flash("Thanks for registering!")
+            c.close()
+            conn.close()
+            gc.collect()
+
+            session['logged_in'] = True
+            session['username'] = username
+
+            return redirect(url_for("dashboard"))
+
+        return render_template("register.html", form = form)
+    except Exception as e:
+        return(str(e))
 
 @app.route("/dashboard/")
 def dashboard():
@@ -70,10 +111,3 @@ def internal_server(e):
 
 if __name__ == "__main__":
 	app.run()
-
-    
-    
-    
-    
-    
-    
