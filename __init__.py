@@ -1,17 +1,29 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, session
 from wtforms import Form, BooleanField, TextField, PasswordField, validators
 from passlib.hash import sha256_crypt
+from functools import wraps
 from pymysql import escape_string as thwart
 import gc
 
 from .db_connect import connection
 from .app_content import content
+
 app = Flask(__name__)
 
 APP_CONTENT = content()
 
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args,**kwargs)
+        else:
+            flash("Please login!")
+            return redirect(url_for('login'))
+    return wrap
+
 @app.route("/", methods=["GET","POST"])
-def hello():
+def main():
     try:
         c, conn = connection()
         if request.method == "POST":
@@ -62,6 +74,14 @@ def login():
     except:
         return render_template("login.html", error = error)
 
+@app.route("/logout/")
+@login_required
+def logout():
+    session.clear()
+    flash("You have been logged out!")
+    gc.collect()
+    return redirect(url_for('main'))
+
 class RegistrationForm(Form):
     username = TextField("Username", [validators.Length(min=4, max=20)])
     email = TextField("Email Address", [validators.Length(min=6, max=50)])
@@ -106,6 +126,7 @@ def register_page():
         return(str(e))
 
 @app.route("/dashboard/")
+@login_required
 def dashboard():
     try:
         return render_template("dashboard.html", APP_CONTENT = APP_CONTENT)
