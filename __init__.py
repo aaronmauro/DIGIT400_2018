@@ -13,12 +13,19 @@ APP_CONTENT = content()
 @app.route("/", methods=["GET","POST"])
 def hello():
     try:
+        c, conn = connection()
         if request.method == "POST":
             entered_username = request.form['username']
             entered_password = request.form['password']
-            
-            if entered_username == "demo" and entered_password == "demo":
-                flash("Welcome "+ entered_username+"!")
+        
+            data = c.execute("SELECT * FROM users WHERE username = ('{0}')".format(thwart(request.form['username'])))
+
+            data = c.fetchone()[2]
+
+            if sha256_crypt.verify(request.form['password'], data):
+                session['logged_in'] = True
+                session['username'] = request.form['username']
+                flash("You are now logged in "+ session['username']+"!")
                 return redirect(url_for("dashboard"))
             else:
                 error = "Invalid Credentials. Please Try Again."
@@ -32,12 +39,19 @@ def hello():
 def login():
     error = ""
     try:
+        c, conn = connection()
         if request.method == "POST":
             entered_username = request.form['username']
             entered_password = request.form['password']
-            
-            if entered_username == "demo" and entered_password == "demo":
-                flash("Welcome "+ entered_username+"!")
+        
+            data = c.execute("SELECT * FROM users WHERE username = ('{0}')".format(thwart(request.form['username'])))
+
+            data = c.fetchone()[2]
+
+            if sha256_crypt.verify(request.form['password'], data):
+                session['logged_in'] = True
+                session['username'] = request.form['username']
+                flash("You are now logged in "+ session['username']+"!")
                 return redirect(url_for("dashboard"))
             else:
                 error = "Invalid Credentials. Please Try Again."
@@ -45,7 +59,7 @@ def login():
         else:
             return render_template("login.html")
     
-    except Exception as e:
+    except:
         return render_template("login.html", error = error)
 
 class RegistrationForm(Form):
@@ -56,6 +70,7 @@ class RegistrationForm(Form):
     confirm = PasswordField("Repeat Password")
     accept_tos = BooleanField("I accept the Terms of Service and Privacy Notice", [validators.Required()])
 
+    
 @app.route('/register/', methods=["GET","POST"])
 def register_page():
     try:
