@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, session, make_response
 from datetime import datetime, timedelta
 from wtforms import Form, BooleanField, TextField, PasswordField, validators
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__))) 
 from passlib.hash import sha256_crypt
 from functools import wraps
 from pymysql import escape_string as thwart
