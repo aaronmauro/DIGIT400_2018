@@ -5,9 +5,9 @@ def content():
                 ["Background","/background/","We had a lot of fun building this app. Learn more about our story."],
                 ["Messages","/messages/","Get your messages from the community!"],],
         
-        "Profile":[["User Profile","/profile/","Edit your profile here."],
-                ["Photo Upload","/upload/","Upload your user profile photo here."],
-                ["Terms of Service","/tos/","The legal stuff."],],
+        "User_Files":[["Static Download","/download/","Download a single static file!"],
+                ["Photo Upload","/uploads/","Upload your user photos here."],
+                ["Download Files","/downloader/","Download files by file name here. Try to improve me by linking in the database!"],],
         
         "Contact":[["Contact Us","/contact/","Get in touch! We'd love to hear from you!"],],
     }

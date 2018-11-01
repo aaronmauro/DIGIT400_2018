@@ -10,7 +10,7 @@
     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
+    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">User Files</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
@@ -40,7 +40,7 @@
   <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
       <!-- PROFILE CARD -->
       <div class="card-deck">
-      {% for i in APP_CONTENT["Profile"] %}
+      {% for i in APP_CONTENT["User_Files"] %}
       <div class="card" style="width: 18rem;">
           <img class="card-img-top" src="{{ url_for('static', filename='images/space_cats.png') }}" alt="Card image cap">
           <div class="card-body">
