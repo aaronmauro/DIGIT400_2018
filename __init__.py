@@ -55,7 +55,16 @@ def main():
         else:
             return render_template("main.html")
     except Exception as e: #remove Exception as e for production and return generic error
-        return render_template("500.html", error = e) 
+        return render_template("500.html", error = e)
+    
+@app.route("/welcome/")
+@login_required
+def templating():
+    try:
+        output = ["DIGIT400 is good","Python, Java, php, SQL, C++","<p><strong>Hello world!</strong></p>",42,"42"]
+        return render_template("templating_demo.html",output = output)
+    except Exception as e:
+        return(str(e)) # remove for production
 
 @app.route("/login/", methods=["GET","POST"])
 def login():
