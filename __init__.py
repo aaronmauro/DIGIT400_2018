@@ -10,6 +10,7 @@ import gc
 
 from db_connect import connection
 from app_content import content
+from database import database
 
 APP_CONTENT = content()
 UPLOAD_FOLDER = '/var/www/FlaskApp/FlaskApp/uploads'
@@ -167,6 +168,8 @@ def upload_file():
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename) 
                 file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+                #store username and associated filenames
+                database(str(session['username']),filename)
                 flash("File upload successful.")
                 return render_template("uploads.html", filename = filename)
             else:
